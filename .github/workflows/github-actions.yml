@@ -1,0 +1,146 @@
+name: Exam Testing
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test-banking-system:
+    name: Test Banking System
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    
+    - name: Run banking system
+      run: |
+        echo "=== Running Banking System ==="
+        python task1.py
+    
+    - name: Run banking system with DEBUG
+      run: |
+        echo "=== Running Banking System with DEBUG ==="
+        DEBUG=1 python task1.py
+    
+    - name: Test banking system functionality
+      run: |
+        python -c "
+        from banking_system import *
+        
+        # Test 1: Create client and accounts
+        client = Client('Test User')
+        assert client.name == 'Test User'
+        
+        # Test 2: Open accounts
+        current = client.open_account('current', initial_balance=1000)
+        assert current is not None
+        assert current.balance == 1000
+        
+        # Test 3: Deposit
+        assert current.deposit(500) == True
+        assert current.balance == 1500
+        
+        # Test 4: Withdraw
+        assert current.withdraw(200) == True
+        assert current.balance == 1300
+        
+        # Test 5: Withdraw limit
+        assert current.withdraw(60000) == False
+        
+        # Test 6: Total balance
+        savings = client.open_account('savings', initial_balance=5000)
+        total = client.get_total_balance()
+        assert total == 6300
+        
+        # Test 7: Interest
+        savings.accrue_interest(10)
+        assert savings.balance == 5500
+        
+        # Test 8: Analytics
+        median = BankAnalytics.calculate_median_balance([current, savings])
+        assert median > 0
+        
+        print(' All banking system tests passed!')
+        "
+
+  test-game-system:
+    name: Test Game System
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    
+    - name: Run game system
+      run: |
+        echo "=== Running Game System ==="
+        python task2.py
+    
+    - name: Run game system with DEBUG
+      run: |
+        echo "=== Running Game System with DEBUG ==="
+        DEBUG=1 python task2.py
+    
+    - name: Test game system functionality
+      run: |
+        python -c "
+        from task2.py import *
+        
+        # Test 1: Create characters
+        warrior = Character.create_character('warrior', 'TestWarrior')
+        assert warrior is not None
+        assert warrior.name == 'TestWarrior'
+        assert warrior.health == 150
+        
+        mage = Character.create_character('mage', 'TestMage')
+        assert mage.health == 80
+        
+        # Test 2: Inventory
+        sword = Weapon('Test Sword', 5.0, 100, 25, 'sword')
+        assert warrior.pick_up_item(sword) == True
+        
+        # Test 3: Equipment
+        assert warrior.use_item('Test Sword') == True
+        assert warrior.equipment['weapon'] == sword
+        
+        # Test 4: Class restrictions
+        staff = Weapon('Test Staff', 3.0, 80, 20, 'staff')
+        warrior.pick_up_item(staff)
+        assert warrior.use_item('Test Staff') == False
+        
+        # Test 5: Potions
+        potion = Potion('Health Potion', 0.5, 50, 'heal', 50)
+        warrior.pick_up_item(potion)
+        old_health = warrior.health
+        warrior.health -= 30
+        warrior.use_item('Health Potion')
+        assert warrior.health > old_health - 30
+        
+        # Test 6: Weight limit
+        heavy_item = Armor('Heavy Armor', 100.0, 500, 50)
+        assert warrior.pick_up_item(heavy_item) == False
+        
+        # Test 7: Crafting
+        CraftingSystem.initialize_recipes()
+        recipes = CraftingSystem.available_recipes(1)
+        assert len(recipes) > 0
+        
+        # Test 8: Dismantle
+        materials = CraftingSystem.dismantle_item(sword)
+        assert len(materials) > 0
+        
+        print(' All game system tests passed!')
+        "
