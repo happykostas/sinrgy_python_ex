@@ -33,7 +33,7 @@ jobs:
     - name: Test banking system functionality
       run: |
         python -c "
-        from banking_system import *
+        from task1 import *
         
         # Test 1: Create client and accounts
         client = Client('Test User')
@@ -97,7 +97,7 @@ jobs:
     - name: Test game system functionality
       run: |
         python -c "
-        from task2.py import *
+        from task2 import *
         
         # Test 1: Create characters
         warrior = Character.create_character('warrior', 'TestWarrior')
